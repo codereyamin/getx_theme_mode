@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:get_storage/get_storage.dart';
 
 class HomeController extends GetxController {
   @override
@@ -10,19 +10,15 @@ class HomeController extends GetxController {
   }
 
   RxBool isLightTheme = false.obs;
-
-  Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
+  GetStorage box = GetStorage();
 
   saveThemeStatus() async {
-    SharedPreferences pref = await _prefs;
-    pref.setBool('theme', isLightTheme.value);
+    await box.write("theme", isLightTheme.value);
   }
 
   _getThemeStatus() async {
-    var _isLight = _prefs.then((SharedPreferences prefs) {
-      return prefs.getBool('theme') != null ? prefs.getBool('theme') : true;
-    }).obs;
-    isLightTheme.value = (await _isLight.value)!;
+    final value = await box.read("theme");
+    isLightTheme.value = value ?? false;
     Get.changeThemeMode(isLightTheme.value ? ThemeMode.light : ThemeMode.dark);
   }
 }
